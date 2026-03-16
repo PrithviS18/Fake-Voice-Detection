@@ -16,7 +16,7 @@ from .config import MODEL_PATH
 # - This happens only once when the file is imported.
 # - The model stays in memory for all future predictions.
 # - This makes inference fast and production-ready.
-model = tf.keras.models.load_model(MODEL_PATH)
+model = tf.keras.models.load_model(MODEL_PATH, compile=False)
 
 
 # ---------------------------------------------------

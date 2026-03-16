@@ -151,6 +151,6 @@ model.fit(
 # ===============================
 
 # Save trained model to disk
-model.save(MODEL_PATH)
+model.save(MODEL_PATH, compile=False)
 
 print("Model saved at", MODEL_PATH)
