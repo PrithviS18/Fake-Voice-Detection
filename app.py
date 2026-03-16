@@ -1,15 +1,20 @@
 # Import FastAPI framework
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI
 
 # Allow requests from frontend
 from fastapi.middleware.cors import CORSMiddleware
 
+# Pydantic model for request body
+from pydantic import BaseModel
+
 from src.config import MODEL_PATH
 
 # File handling utilities
-import shutil
 import os
 import uuid
+
+# Library to download file from URL
+import requests
 
 # TensorFlow for model loading
 import tensorflow as tf
@@ -36,6 +41,13 @@ app.add_middleware(
 
 
 # ---------------------------------------------------
+# Request Body Schema
+# ---------------------------------------------------
+class AudioRequest(BaseModel):
+    file: str
+
+
+# ---------------------------------------------------
 # Load model at server startup
 # ---------------------------------------------------
 @app.on_event("startup")
@@ -53,10 +65,12 @@ def load_model():
 # POST Endpoint: /detect
 # ---------------------------------------------------
 @app.post("/detect")
-async def detect(audio: UploadFile = File(...)):
+async def detect(data: AudioRequest):
+
+    audio_url = data.file
 
     # Validate file type
-    if not audio.filename.endswith(".wav"):
+    if not audio_url.endswith(".wav"):
         return {"error": "Only .wav audio files are supported"}
 
     # Ensure uploads directory exists
@@ -67,9 +81,15 @@ async def detect(audio: UploadFile = File(...)):
 
     try:
 
-        # Save uploaded file
-        with open(temp_path, "wb") as buffer:
-            shutil.copyfileobj(audio.file, buffer)
+        # Download file from URL
+        response = requests.get(audio_url, timeout=15)
+
+        if response.status_code != 200:
+            return {"error": "Failed to download audio file"}
+
+        # Save file locally
+        with open(temp_path, "wb") as f:
+            f.write(response.content)
 
         # Run prediction using preloaded model
         result = predict(temp_path, app.state.model)
