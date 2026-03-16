@@ -9,6 +9,9 @@ import shutil
 import os
 import uuid
 
+# TensorFlow for model loading
+import tensorflow as tf
+
 # Import prediction function
 from src.predict import predict
 
@@ -24,10 +27,23 @@ app = FastAPI()
 # ---------------------------------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # change to frontend domain in production
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# ---------------------------------------------------
+# Load model at server startup
+# ---------------------------------------------------
+@app.on_event("startup")
+def load_model():
+
+    # Load model once and store globally
+    app.state.model = tf.keras.models.load_model(
+        "model.h5",
+        compile=False
+    )
 
 
 # ---------------------------------------------------
@@ -47,18 +63,20 @@ async def detect(audio: UploadFile = File(...)):
     temp_path = f"uploads/{uuid.uuid4()}.wav"
 
     try:
+
         # Save uploaded file
         with open(temp_path, "wb") as buffer:
             shutil.copyfileobj(audio.file, buffer)
 
-        # Run model prediction
-        result = predict(temp_path)
+        # Run prediction using preloaded model
+        result = predict(temp_path, app.state.model)
 
     except Exception as e:
         return {"error": str(e)}
 
     finally:
-        # Delete temp file after prediction
+
+        # Delete temp file
         if os.path.exists(temp_path):
             os.remove(temp_path)
 
