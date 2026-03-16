@@ -4,6 +4,8 @@ from fastapi import FastAPI, File, UploadFile
 # Allow requests from frontend
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.config import MODEL_PATH
+
 # File handling utilities
 import shutil
 import os
@@ -41,7 +43,7 @@ def load_model():
 
     # Load model once and store globally
     app.state.model = tf.keras.models.load_model(
-        "model.h5",
+        MODEL_PATH,
         compile=False
     )
 
