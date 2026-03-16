@@ -3,6 +3,7 @@ uvicorn
 numpy
 librosa
 tensorflow==2.19.0
+keras<3
 scikit-learn
 soundfile
 python-multipart
