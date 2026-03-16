@@ -43,10 +43,8 @@ def load_model():
 
     print("Loading model from:", MODEL_PATH)
 
-    app.state.model = tf.keras.models.load_model(
-        MODEL_PATH,
-        compile=False
-    )
+    # Load TensorFlow SavedModel
+    app.state.model = tf.saved_model.load(MODEL_PATH)
 
     print("Model loaded successfully")
 
