@@ -1,4 +1,4 @@
-MODEL_PATH = "models/model.h5"
+MODEL_PATH = "models/model"
 
 SAMPLE_RATE = 16000
 DURATION = 3
