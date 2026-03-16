@@ -1,4 +1,4 @@
-MODEL_PATH = "models/model"
+MODEL_PATH = "models/model.keras"
 
 SAMPLE_RATE = 16000
 DURATION = 3
