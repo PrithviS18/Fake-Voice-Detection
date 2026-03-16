@@ -41,11 +41,14 @@ app.add_middleware(
 @app.on_event("startup")
 def load_model():
 
-    # Load model once and store globally
+    print("Loading model from:", MODEL_PATH)
+
     app.state.model = tf.keras.models.load_model(
         MODEL_PATH,
         compile=False
     )
+
+    print("Model loaded successfully")
 
 
 # ---------------------------------------------------
